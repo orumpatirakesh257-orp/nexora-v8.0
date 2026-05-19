@@ -1,5 +1,13 @@
 export function formatChatError(raw: string): string {
   if (
+    raw.includes('Failed to fetch') ||
+    raw.includes('NetworkError') ||
+    raw.includes('Load failed') ||
+    raw.includes('CORS')
+  ) {
+    return 'Cannot reach the Nexora API. Check that the backend is running and CORS allows this site.';
+  }
+  if (
     raw.includes('model_decommissioned') ||
     raw.includes('no longer available')
   ) {

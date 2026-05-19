@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { apiUrl } from '../config/api';
 import type { Chat, Message } from '../types';
 import { formatChatError } from '../utils/formatError';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 import {
   generateId,
   loadChats,
@@ -250,7 +249,7 @@ export function useChat() {
       dispatch({ type: 'START_ASSISTANT_MESSAGE' });
 
       try {
-        const response = await fetch(`${API_URL.replace(/\/$/, '')}/api/chat`, {
+        const response = await fetch(apiUrl('/api/chat'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
