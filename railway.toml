@@ -1,9 +1,10 @@
+# Run from repository root (leave Railway "Root Directory" empty).
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm ci && npm run build"
+buildCommand = "npm run railway:build"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm run railway:start"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 120
 restartPolicyType = "on_failure"
