@@ -8,8 +8,13 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "declaration": false,
+    "sourceMap": true
   },
-  "include": ["./**/*.ts"],
+  "ts-node": {
+    "esm": true
+  },
+  "include": ["index.ts", "routes/**/*.ts", "utils/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
