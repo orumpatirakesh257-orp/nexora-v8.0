@@ -1,7 +1,7 @@
 import Groq from 'groq-sdk';
 import { tavily } from '@tavily/core';
 import { Router, type Request, type Response } from 'express';
-import { formatGroqApiError, getGroqKeyError } from '../utils/apiKey.js';
+import { formatGroqApiError, getGroqKeyError } from '../utils/apiKey';
 
 const router = Router();
 

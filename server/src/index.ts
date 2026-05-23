@@ -3,10 +3,10 @@ import path from 'node:path';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import chatRouter from './routes/chat.js';
-import { getGroqKeyError } from './utils/apiKey.js';
-import { buildAllowedOrigins, isOriginAllowed } from './utils/corsOrigins.js';
-import { getClientDistPath, getEnvPath } from './utils/paths.js';
+import chatRouter from './routes/chat';
+import { getGroqKeyError } from './utils/apiKey';
+import { buildAllowedOrigins, isOriginAllowed } from './utils/corsOrigins';
+import { getClientDistPath, getEnvPath } from './utils/paths';
 
 dotenv.config({ path: getEnvPath(), override: true });
 
