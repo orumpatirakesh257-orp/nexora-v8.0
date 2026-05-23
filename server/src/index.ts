@@ -17,19 +17,12 @@ const PORT = Number(process.env.PORT) || 3001;
 const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 const clientDist = getClientDistPath();
 const servesFrontend = existsSync(path.join(clientDist, 'index.html'));
-const corsOrigins = buildAllowedOrigins(PORT);
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || isOriginAllowed(origin, corsOrigins)) {
-        callback(null, true);
-        return;
-      }
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(null, false);
-    },
-    credentials: true,
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
   })
 );
 app.use(express.json({ limit: '2mb' }));

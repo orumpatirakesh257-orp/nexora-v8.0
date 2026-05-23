@@ -1,12 +1,9 @@
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { existsSync } from 'fs';
+import path from 'path';
 
 /** Nexora monorepo root (contains client/, server/, .env). */
 export function getProjectRoot(): string {
-  let dir = path.resolve(__dirname, '..');
+  let dir = path.resolve(process.cwd());
   for (let i = 0; i < 6; i++) {
     if (
       existsSync(path.join(dir, 'package.json')) &&
@@ -19,7 +16,7 @@ export function getProjectRoot(): string {
     if (parent === dir) break;
     dir = parent;
   }
-  return path.resolve(__dirname, '../..');
+  return path.resolve(process.cwd(), '..');
 }
 
 export function getEnvPath(): string {
