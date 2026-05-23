@@ -36,6 +36,9 @@ app.use(express.json({ limit: '2mb' }));
 
 app.get('/api/health', (_req, res) => {
   const keyError = getGroqKeyError(process.env.GROQ_API_KEY);
+  const tavilyApiKey = process.env.TAVILY_API_KEY?.trim();
+  const tavilyKeyConfigured = Boolean(tavilyApiKey);
+
   res.json({
     status: 'ok',
     name: 'Nexora',
@@ -43,6 +46,8 @@ app.get('/api/health', (_req, res) => {
     model: GROQ_MODEL,
     apiKeyConfigured: !keyError,
     apiKeyError: keyError,
+    tavilyApiKeyConfigured: tavilyKeyConfigured,
+    tavilyApiKeyError: tavilyKeyConfigured ? null : 'TAVILY_API_KEY not configured',
     servesFrontend,
   });
 });

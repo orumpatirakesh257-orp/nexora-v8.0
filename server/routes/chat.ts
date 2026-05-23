@@ -1,15 +1,58 @@
 import Groq from 'groq-sdk';
+import { tavily } from '@tavily/core';
 import { Router, type Request, type Response } from 'express';
 import { formatGroqApiError, getGroqKeyError } from '../utils/apiKey.js';
 
 const router = Router();
 
 const NEXORA_SYSTEM_PROMPT =
-  'You are Nexora, a highly intelligent and helpful AI assistant. You are thoughtful, concise, and friendly. Always introduce yourself as Nexora.';
+  'You are Nexora, an AI assistant with access to real-time web search. When you use search results, mention that the info is from a live web search. You are thoughtful, concise, and friendly. Always introduce yourself as Nexora.';
+
+const SEARCH_TRIGGER_REGEX =
+  /today|latest|news|current|price|weather|who won|what happened|right now|2024|2025|2026/i;
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+}
+
+function shouldUseWebSearch(message: string) {
+  return SEARCH_TRIGGER_REGEX.test(message);
+}
+
+async function buildWebSearchContext(userMessage: string): Promise<string | undefined> {
+  const apiKey = process.env.TAVILY_API_KEY?.trim();
+  if (!apiKey) {
+    return undefined;
+  }
+
+  const tavilyClient = tavily({ apiKey });
+  try {
+    const searchResults = await tavilyClient.search(userMessage, {
+      maxResults: 3,
+    });
+
+    const results = Array.isArray(searchResults?.results)
+      ? searchResults.results
+      : [];
+
+    const context = results
+      .map((result: any, index: number) => {
+        const title = typeof result.title === 'string' ? result.title : `Result ${index + 1}`;
+        const content = typeof result.content === 'string' ? result.content : '';
+        return `${title}: ${content}`;
+      })
+      .filter(Boolean)
+      .join('\n\n');
+
+    return context || undefined;
+  } catch (error) {
+    console.warn(
+      'Tavily search failed, proceeding without live search:',
+      error instanceof Error ? error.message : error
+    );
+    return undefined;
+  }
 }
 
 interface ChatRequestBody {
@@ -122,7 +165,21 @@ router.post('/chat', async (req: Request, res: Response) => {
       return;
     }
 
-    const prompt = systemPrompt?.trim() || NEXORA_SYSTEM_PROMPT;
+    const lastUserMessage =
+      [...validMessages]
+        .reverse()
+        .find((m) => m.role === 'user')
+        ?.content?.trim() || '';
+
+    let prompt = systemPrompt?.trim() || NEXORA_SYSTEM_PROMPT;
+
+    if (lastUserMessage && shouldUseWebSearch(lastUserMessage)) {
+      const webSearchContext = await buildWebSearchContext(lastUserMessage);
+      if (webSearchContext) {
+        prompt += `\n\nReal-time web search results for context:\n${webSearchContext}`;
+      }
+    }
+
     await streamGroq(res, validMessages, prompt);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Chat request failed';
